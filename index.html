@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Für Hannah</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('background.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            position: absolute;
+            z-index: 2;
+            /* Position anpassen: */
+            top: 50%;              /* Vertikal: 50% = Mitte, 20% = oben, 80% = unten */
+            left: 50%;             /* Horizontal: 50% = Mitte, 20% = links, 80% = rechts */
+            transform: translate(-50%, -50%);  /* Zentriert das Element an der gewählten Position */
+            pointer-events: none;
+        }
+
+        #start-btn {
+            background-color: #fff;
+            color: #4346fc;
+            border: none;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            font-family: 'Courier New', monospace;
+            pointer-events: auto;
+        }
+
+        #start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            background-color: #f0f0f0;
+        }
+
+        #start-btn:active {
+            transform: translateY(-2px);
+        }
+
+        #text-container {
+            display: none;
+            margin-top: 50px;
+        }
+
+        #typewriter-text {
+            font-size: 72px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 8px;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            min-height: 100px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: #fff;
+            animation: blink 0.7s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Animierte Bilder */
+        .floating-image {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            object-fit: contain;
+            z-index: 3;
+            opacity: 0;
+            cursor: grab;
+        }
+
+        .floating-image:active {
+            cursor: grabbing;
+        }
+
+        .floating-image.dragging {
+            z-index: 10;
+        }
+
+        .image-left {
+            bottom: 20%;
+            left: -200px;
+        }
+
+        .image-right {
+            bottom: 20%;
+            right: -200px;
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 1.5s ease-out forwards;
+        }
+
+        .slide-in-right {
+            animation: slideInRight 1.5s ease-out forwards;
+        }
+
+        @keyframes slideInLeft {
+            to {
+                left: 10%;
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            to {
+                right: 10%;
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #typewriter-text {
+                font-size: 48px;
+                letter-spacing: 4px;
+            }
+
+            #start-btn {
+                padding: 15px 30px;
+                font-size: 20px;
+            }
+
+            .floating-image {
+                width: 100px;
+                height: 100px;
+            }
+
+            .image-left {
+                bottom: 10%;
+            }
+
+            .image-right {
+                bottom: 10%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animierte Bilder -->
+    <img src="image-left.jpg" alt="Bild Links" class="floating-image image-left" id="imgLeft">
+    <img src="image-right.jpg" alt="Bild Rechts" class="floating-image image-right" id="imgRight">
+    
+    <div class="container">
+        <button id="start-btn">START</button>
+        <div id="text-container">
+            <div id="typewriter-text"></div>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const textContainer = document.getElementById('text-container');
+        const typewriterText = document.getElementById('typewriter-text');
+        const imgLeft = document.getElementById('imgLeft');
+        const imgRight = document.getElementById('imgRight');
+        const text = 'FÜR HANNAH';
+        let index = 0;
+
+        startBtn.addEventListener('click', () => {
+            startBtn.classList.add('hidden');
+            textContainer.style.display = 'block';
+            
+            // Bilder animieren
+            imgLeft.classList.add('slide-in-left');
+            imgRight.classList.add('slide-in-right');
+            
+            // Nach der Animation die CSS-Klassen entfernen, damit Dragging funktioniert
+            setTimeout(() => {
+                imgLeft.classList.remove('slide-in-left', 'image-left');
+                imgRight.classList.remove('slide-in-right', 'image-right');
+                
+                // Position final setzen
+                const leftRect = imgLeft.getBoundingClientRect();
+                const rightRect = imgRight.getBoundingClientRect();
+                
+                imgLeft.style.left = leftRect.left + 'px';
+                imgLeft.style.top = leftRect.top + 'px';
+                imgLeft.style.bottom = 'auto';
+                imgLeft.style.right = 'auto';
+                imgLeft.style.opacity = '1';
+                
+                imgRight.style.left = rightRect.left + 'px';
+                imgRight.style.top = rightRect.top + 'px';
+                imgRight.style.bottom = 'auto';
+                imgRight.style.right = 'auto';
+                imgRight.style.opacity = '1';
+            }, 1500);
+            
+            typeWriter();
+        });
+
+        function typeWriter() {
+            if (index < text.length) {
+                typewriterText.innerHTML = text.substring(0, index + 1) + '<span class="cursor"></span>';
+                index++;
+                setTimeout(typeWriter, 200); // Geschwindigkeit des Tippens (200ms pro Buchstabe)
+            } else {
+                // Cursor bleibt am Ende
+                typewriterText.innerHTML = text + '<span class="cursor"></span>';
+            }
+        }
+
+        // Drag and Drop Funktionalität
+        let isDragging = false;
+        let currentImage = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        function makeDraggable(element) {
+            element.addEventListener('mousedown', startDrag);
+            element.addEventListener('touchstart', startDrag);
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+            currentImage = e.target;
+            currentImage.classList.add('dragging');
+            
+            const rect = currentImage.getBoundingClientRect();
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
+            
+            e.preventDefault();
+        }
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag);
+        
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
+
+        function drag(e) {
+            if (!isDragging || !currentImage) return;
+            
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+            
+            currentImage.style.left = (clientX - offsetX) + 'px';
+            currentImage.style.top = (clientY - offsetY) + 'px';
+            currentImage.style.right = 'auto';
+            currentImage.style.bottom = 'auto';
+        }
+
+        function stopDrag() {
+            if (currentImage) {
+                currentImage.classList.remove('dragging');
+            }
+            isDragging = false;
+            currentImage = null;
+        }
+
+        // Bilder draggable machen
+        makeDraggable(imgLeft);
+        makeDraggable(imgRight);
+    </script>
+</body>
+</html>
