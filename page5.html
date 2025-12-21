@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Überraschung</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: url('background_4.jpg') center/cover no-repeat fixed;
+        }
+
+        .gift-bubble {
+            position: fixed;
+            background: #FFD700;
+            padding: 40px;
+            border: 3px solid #333;
+            border-radius: 0;
+            z-index: 100;
+            display: none;
+            text-align: center;
+            max-width: 350px;
+            cursor: pointer;
+            animation: bubbleAppear 0.5s ease-out;
+            transition: all 0.1s ease;
+        }
+
+        .gift-bubble::before {
+            display: none;
+        }
+
+        .gift-bubble.show {
+            display: block;
+        }
+
+        @keyframes bubbleAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .gift-bubble h2 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+            line-height: 1.4;
+            font-family: 'Courier New', monospace;
+        }
+
+        .gift-bubble:hover {
+            background: #FFC700;
+            transform: translate(2px, 2px);
+        }
+
+        .gift-bubble:active {
+            transform: translate(4px, 4px);
+        }
+
+        .text-container {
+            display: none;
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            padding: 60px;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 90%;
+            z-index: 101;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .text-container.show {
+            display: block;
+        }
+
+        .text-container p {
+            color: #EB6222;
+            font-size: 20px;
+            line-height: 1.6;
+            min-height: 100px;
+            font-weight: 400;
+        }
+
+        .text-container button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: #FFC700;
+            color: #000000;
+            border: 3px solid #333;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.1s ease;
+            display: none;
+        }
+
+        .text-container button.show {
+            display: inline-block;
+        }
+
+        .text-container button:hover {
+            background: #FFC700;
+            transform: translate(2px, 2px);
+        }
+
+        .text-container button:active {
+            transform: translate(4px, 4px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gift-bubble" id="giftBubble">
+        <h2>Klicke hier, um zu deinem Weihnachtsgeschenk zu gelangen.</h2>
+    </div>
+
+    <div class="text-container" id="textContainer">
+        <p id="typewriterText"></p>
+        <button id="nextBtn">Weiter</button>
+    </div>
+
+    <script>
+        const bubble = document.getElementById('giftBubble');
+        const textContainer = document.getElementById('textContainer');
+        const typewriterText = document.getElementById('typewriterText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Der Text, der angezeigt werden soll (nur Seite 5)
+        const fullText = "Liebe Hannah, \n frohe Weihnachten! Ich habe das unglaubliche Glück, das ganze letzte Jahr mit dir verbringen zu dürfen. Und wir haben so viel erlebt! \n  Ich liebe dich dafür, dass du jede Situation, egal wann, wo oder wie, wunderschön machst. Wir sind in Hamburg fast erfroren, und trotzdem habe ich die Stadt ganz warm in Erinnerung. In Prag sind wir durch die verwinkelten Gassen geschlendert und haben deinen Geburtstag mit improvisiertem Käsekuchen gefeiert. Für mich gibt es nichts friedlicheres als mit dir durch hübsche Strässchen zu schlendern und mit dir zu träumen.";
+
+        // Nach 5 Sekunden Sprechblase anzeigen
+        setTimeout(() => {
+            bubble.classList.add('show');
+            bubble.style.left = '50%';
+            bubble.style.top = '50%';
+            bubble.style.transform = 'translate(-50%, -50%)';
+        }, 5000);
+
+        // Klick auf die Bubble startet Typewriter-Effekt
+        bubble.addEventListener('click', () => {
+            bubble.style.display = 'none';
+            textContainer.classList.add('show');
+            startTypewriter();
+        });
+
+        // Typewriter-Effekt
+        function startTypewriter() {
+            let index = 0;
+            const speed = 110; // Millisekunden pro Buchstabe
+            const pauseAfterSentence = 0; // Pause nach Satzende (Punkt)
+            const pauseAfterNewline = 0; // Pause nach Absatz
+
+            function type() {
+                if (index < fullText.length) {
+                    const currentChar = fullText.charAt(index);
+                    
+                    // Zeilenumbrüche als <br> einfügen
+                    if (currentChar === '\n') {
+                        typewriterText.innerHTML += '<br>';
+                    } else {
+                        typewriterText.textContent += currentChar;
+                    }
+                    
+                    index++;
+                    
+                    // Bestimme die Wartezeit
+                    let delay = speed;
+                    
+                    // Längere Pause nach Punkt (Satzende)
+                    if (currentChar === '.' && fullText.charAt(index) === ' ') {
+                        delay = pauseAfterSentence;
+                    }
+                    // Längere Pause nach Zeilenumbruch
+                    else if (currentChar === '\n') {
+                        delay = pauseAfterNewline;
+                    }
+                    
+                    setTimeout(type, delay);
+                } else {
+                    // Text fertig - Button wird angezeigt
+                    nextBtn.classList.add('show');
+                }
+            }
+
+            type();
+        }
+
+        // Klick auf "Weiter" führt zur nächsten Seite und übergibt den Folge-Text
+        nextBtn.addEventListener('click', () => {
+            try {
+                // Werte für Seite 6 speichern
+                localStorage.setItem('typewriterText', nextText);
+                localStorage.setItem('typewriterSpeed', String(110));
+                localStorage.setItem('typewriterPauseSentence', String(0));
+                localStorage.setItem('typewriterPauseNewline', String(0));
+            } catch (e) {
+                // Falls localStorage nicht verfügbar ist, geht es trotzdem weiter
+            }
+            window.location.href = 'page6.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Für Hannah</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('background_2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+
+        .content {
+            display: none;
+        }
+
+        /* Fallendes Bild */
+        .falling-image {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            object-fit: contain;
+            top: -250px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            opacity: 0;
+        }
+
+        .falling-image.fall {
+            animation: fallDown 2s ease-in forwards;
+        }
+
+        /* Kleines Bild oben mittig */
+        .top-image {
+            position: fixed;
+            top: 60%;
+            left: 17%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        @keyframes fallDown {
+            0% {
+                top: -250px;
+                opacity: 0;
+                transform: translateX(-50%) rotate(0deg);
+            }
+            10% {
+                opacity: 1;
+                transform: translateX(-50%) rotate(72deg);
+            }
+            100% {
+                top: 70%;
+                opacity: 1;
+                transform: translateX(-50%) translateY(-50%) rotate(720deg);
+            }
+        }
+
+        /* Sprechblase */
+        .speech-bubble {
+            position: fixed;
+            top: 45%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #EB6222;
+            padding: 20px 30px;
+            border-radius: 0;
+            box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.25);
+            font-size: 20px;
+            font-weight: 700;
+            z-index: 6;
+            opacity: 0;
+            max-width: 400px;
+            text-align: center;
+            border: 3px solid #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #fff;
+        }
+
+        .speech-bubble.show {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .speech-bubble.hide {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="top-image.jpg" alt="Oberes Bild" class="top-image">
+    <img src="falling-image.jpg" alt="Fallendes Bild" class="falling-image" id="fallingImg">
+    <div class="speech-bubble" id="speechBubble1">Au!</div>
+    <div class="speech-bubble" id="speechBubble2">Wo ist denn Hannah?</div>
+    <div class="speech-bubble" id="speechBubble3">Ich finde sie nicht!</div>
+    <div class="speech-bubble" id="speechBubble4">Kannst du mir helfen?</div>
+    <div class="content">
+        <h1>Für Hannah</h1>
+        <p>Hier kommt dein Inhalt für die dritte Seite.</p>
+        <p>Was möchtest du hier zeigen?</p>
+        <a class="next-link" href="index.html">Zurück zum Start</a>
+    </div>
+
+    <script>
+        const bubbles = [
+            { id: 'speechBubble1', showAt: 7000, hideAt: 10000 },
+            { id: 'speechBubble2', showAt: 12000, hideAt: 15000 },
+            { id: 'speechBubble3', showAt: 17000, hideAt: 20000 },
+            { id: 'speechBubble4', showAt: 22000, hideAt: null }
+        ];
+
+        function showBubble(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('hide');
+            el.classList.add('show');
+        }
+
+        function hideBubble(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('show');
+            el.classList.add('hide');
+        }
+
+        // Klick auf das kleine Bild -> neue Seite
+        const topImg = document.querySelector('.top-image');
+        if (topImg) {
+            topImg.addEventListener('click', () => {
+                window.location.href = 'page4.html';
+            });
+        }
+
+        // Nach 5 Sekunden fällt das Bild herunter
+        setTimeout(() => {
+            document.getElementById('fallingImg').classList.add('fall');
+        }, 5000);
+
+        // Bubbles sequenziell anzeigen
+        bubbles.forEach(({ id, showAt, hideAt }) => {
+            setTimeout(() => showBubble(id), showAt);
+            if (hideAt !== null) {
+                setTimeout(() => hideBubble(id), hideAt);
+            }
+        });
+    </script>
+</body>
+</html>

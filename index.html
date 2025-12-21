@@ -19,7 +19,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
             position: relative;
         }
 
@@ -61,28 +60,25 @@
         }
 
         #start-btn {
-            background-color: #fff;
-            color: #4346fc;
-            border: none;
+            background: #FFC700;
+            color: #000;
+            border: 3px solid #333;
             padding: 20px 40px;
             font-size: 24px;
-            font-weight: bold;
-            border-radius: 50px;
+            font-weight: 700;
+            border-radius: 0;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.15s ease;
             font-family: 'Courier New', monospace;
             pointer-events: auto;
         }
 
         #start-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            background-color: #f0f0f0;
+            transform: translate(2px, 2px);
         }
 
         #start-btn:active {
-            transform: translateY(-2px);
+            transform: translate(4px, 4px);
         }
 
         #text-container {
@@ -92,8 +88,8 @@
 
         #typewriter-text {
             font-size: 72px;
-            font-weight: bold;
-            color: #fff;
+            font-weight: 700;
+            color: #EB6222;
             letter-spacing: 8px;
             text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             min-height: 100px;
@@ -102,7 +98,7 @@
         .cursor {
             display: inline-block;
             width: 3px;
-            background-color: #fff;
+            background-color: #EB6222;
             animation: blink 0.7s infinite;
         }
 
@@ -124,6 +120,7 @@
             z-index: 3;
             opacity: 0;
             cursor: grab;
+            pointer-events: auto;
         }
 
         .floating-image:active {
@@ -134,12 +131,44 @@
             z-index: 10;
         }
 
+        /* Herz, das erscheint wenn sich die Bilder berühren */
+        #heart {
+            position: fixed;
+            width: 0;
+            height: 0;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 0;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.4s ease-out, opacity 0.3s ease-out, width 0.4s ease-out, height 0.4s ease-out, font-size 0.4s ease-out;
+            z-index: 4;
+            pointer-events: none;
+            text-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        #heart.heart-visible {
+            width: 50px;
+            height: 100px;
+            font-size: 120px;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
         .image-left {
+            width: 600px;
+            height: 600px;
             bottom: 20%;
             left: -200px;
         }
 
         .image-right {
+            width: 420px;
+            height: 420px;
             bottom: 20%;
             right: -200px;
         }
@@ -154,7 +183,7 @@
 
         @keyframes slideInLeft {
             to {
-                left: 10%;
+                left: 5%;
                 opacity: 1;
             }
         }
@@ -194,6 +223,7 @@
 </head>
 <body>
     <!-- Animierte Bilder -->
+    <div id="heart">❤</div>
     <img src="image-left.jpg" alt="Bild Links" class="floating-image image-left" id="imgLeft">
     <img src="image-right.jpg" alt="Bild Rechts" class="floating-image image-right" id="imgRight">
     
@@ -210,8 +240,23 @@
         const typewriterText = document.getElementById('typewriter-text');
         const imgLeft = document.getElementById('imgLeft');
         const imgRight = document.getElementById('imgRight');
+        const heart = document.getElementById('heart');
         const text = 'FÜR HANNAH';
         let index = 0;
+
+        // Bei Klick auf das Herz zur neuen Seite wechseln (Herz lässt Pointer-Events durch, daher globaler Listener)
+        document.addEventListener('click', (e) => {
+            // Ignore clicks on images (for dragging)
+            if (e.target === imgLeft || e.target === imgRight) return;
+            
+            if (!heart.classList.contains('heart-visible')) return;
+            const rect = heart.getBoundingClientRect();
+            const withinX = e.clientX >= rect.left && e.clientX <= rect.right;
+            const withinY = e.clientY >= rect.top && e.clientY <= rect.bottom;
+            if (withinX && withinY) {
+                window.location.href = 'new-picture.html';
+            }
+        });
 
         startBtn.addEventListener('click', () => {
             startBtn.classList.add('hidden');
@@ -223,13 +268,20 @@
             
             // Nach der Animation die CSS-Klassen entfernen, damit Dragging funktioniert
             setTimeout(() => {
+                // Position VOR dem Entfernen der Klassen ermitteln
+                const leftRect = imgLeft.getBoundingClientRect();
+                const rightRect = imgRight.getBoundingClientRect();
+                
+                // Größen explizit setzen, bevor Klassen entfernt werden
+                imgLeft.style.width = '600px';
+                imgLeft.style.height = '600px';
+                imgRight.style.width = '420px';
+                imgRight.style.height = '420px';
+                
                 imgLeft.classList.remove('slide-in-left', 'image-left');
                 imgRight.classList.remove('slide-in-right', 'image-right');
                 
                 // Position final setzen
-                const leftRect = imgLeft.getBoundingClientRect();
-                const rightRect = imgRight.getBoundingClientRect();
-                
                 imgLeft.style.left = leftRect.left + 'px';
                 imgLeft.style.top = leftRect.top + 'px';
                 imgLeft.style.bottom = 'auto';
@@ -241,6 +293,8 @@
                 imgRight.style.bottom = 'auto';
                 imgRight.style.right = 'auto';
                 imgRight.style.opacity = '1';
+
+                checkTouch();
             }, 1500);
             
             typeWriter();
@@ -263,6 +317,28 @@
         let offsetX = 0;
         let offsetY = 0;
 
+        function checkTouch() {
+            const leftRect = imgLeft.getBoundingClientRect();
+            const rightRect = imgRight.getBoundingClientRect();
+
+            // Require a small overlap area before showing the heart
+            const overlapX = Math.min(leftRect.right, rightRect.right) - Math.max(leftRect.left, rightRect.left);
+            const overlapY = Math.min(leftRect.bottom, rightRect.bottom) - Math.max(leftRect.top, rightRect.top);
+            const overlapThreshold = 300; // pixels of overlap required in both axes
+
+            const overlaps = overlapX > overlapThreshold && overlapY > overlapThreshold;
+
+            if (overlaps) {
+                const midX = ((leftRect.left + leftRect.right) / 2 + (rightRect.left + rightRect.right) / 2) / 2;
+                const midY = ((leftRect.top + leftRect.bottom) / 2 + (rightRect.top + rightRect.bottom) / 2) / 2;
+                heart.style.left = midX + 'px';
+                heart.style.top = midY + 'px';
+                heart.classList.add('heart-visible');
+            } else {
+                heart.classList.remove('heart-visible');
+            }
+        }
+
         function makeDraggable(element) {
             element.addEventListener('mousedown', startDrag);
             element.addEventListener('touchstart', startDrag);
@@ -281,6 +357,7 @@
             offsetY = clientY - rect.top;
             
             e.preventDefault();
+            e.stopPropagation();
         }
 
         document.addEventListener('mousemove', drag);
@@ -299,6 +376,8 @@
             currentImage.style.top = (clientY - offsetY) + 'px';
             currentImage.style.right = 'auto';
             currentImage.style.bottom = 'auto';
+
+            checkTouch();
         }
 
         function stopDrag() {

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weihnachtsgeschenk</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: url('background_5.jpg') center/cover no-repeat fixed;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .text-container {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .text-container p {
+            color: #EB6222;
+            font-size: 20px;
+            line-height: 1.6;
+            min-height: 100px;
+            font-weight: 400;
+        }
+
+        .text-container button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: #FFC700;
+            color: #000;
+            border: 3px solid #333;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.1s ease;
+            display: none;
+        }
+
+        .text-container button.show {
+            display: inline-block;
+        }
+
+        .text-container button:hover {
+            background: #FFC700;
+            transform: translate(2px, 2px);
+        }
+
+        .text-container button:active {
+            transform: translate(4px, 4px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="text-container">
+        <p id="typewriterText"></p>
+        <button id="nextBtn">Weiter</button>
+    </div>
+
+    <script>
+        const typewriterText = document.getElementById('typewriterText');
+
+        // Fester Text nur für Seite 6 (keine Weitergabe nötig)
+        const fullText = "Wir sind in der Provence zu Boule Profis geworden.\n\n In Bonn haben wir zu zweit oder mit unseren speziellen Freunden den Frühling genossen. In Spanien hatten wir Waldbränden zum Trotz einen der schönsten Urlaube die man sich vorstellen kann. Kannst du dich noch an diese süße Katze erinnern? Ich war so unglaublich glücklick dort in Granada. Ich liebe dich so sehr, mit dir waren sogar die vielen langen Busfahrten zum Strand ein Erlebnis. Ich wünschte, wir könnten immer so sorglos verliebt sein, wie diesen Sommer in Spanien.";
+        const speed = 110;
+        const pauseAfterSentence = 0;
+        const pauseAfterNewline = 0;
+
+        function startTypewriter() {
+            let index = 0;
+            function type() {
+                if (index < fullText.length) {
+                    const currentChar = fullText.charAt(index);
+                    if (currentChar === '\n') {
+                        typewriterText.innerHTML += '<br>';
+                    } else {
+                        typewriterText.textContent += currentChar;
+                    }
+                    index++;
+                    let delay = speed;
+                    if (currentChar === '.' && fullText.charAt(index) === ' ') {
+                        delay = pauseAfterSentence;
+                    } else if (currentChar === '\n') {
+                        delay = pauseAfterNewline;
+                    }
+                    setTimeout(type, delay);
+                } else {
+                    // Text fertig - Button wird angezeigt
+                    document.getElementById('nextBtn').classList.add('show');
+                }
+            }
+            type();
+        }
+
+        // Klick auf "Weiter" führt zur nächsten Seite
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            window.location.href = 'page7.html';
+        });
+
+        startTypewriter();
+    </script>
+</body>
+</html>
